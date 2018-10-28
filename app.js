@@ -20,12 +20,11 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.all('*', function (req, res, next) {
-  console.log('Intercepted______', req.headers)
-  console.log('Accessing the secret section ...')
-  console.log('apiKey: ', req.get('apiKey'));
   if(process.env.NODE_ENV === 'production' && req.get('apiKey') === config.apiKey) {
-    console.log('apiKey: ', req.get('apiKey'));
     return next();
+  }
+  if(process.env.NODE_ENV === 'production' && (req.get('apiKey') !== config.apiKey || req.get('apiKey') === undefined)){
+    return res.sendFile(path.join(__dirname + '/client/build/index.html'));
   }
   if(process.env.NODE_ENV !== 'production'){
     return next();
@@ -39,7 +38,6 @@ app.use('/users', usersRouter);
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
-  console.log('Environment___', process.env.NODE_ENV)
   if(process.env.NODE_ENV === 'production'){
     res.sendFile(path.join(__dirname + '/client/build/index.html'));
   }else{
